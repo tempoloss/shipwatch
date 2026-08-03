@@ -1,0 +1,58 @@
+name: watch
+
+on:
+  schedule:
+    # Daily. The runner itself decides which watchers are due, using intervals
+    # in config.json, so cadence lives in one reviewable place rather than in
+    # several cron lines. Tags: every 20h. ISO: every 168h (weekly) because the
+    # source rate-limits and publishes maintenance releases annually.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+# Least privilege. contents:write is only for committing state back.
+permissions:
+  contents: write
+
+concurrency:
+  # A retried or manually dispatched run must not race the scheduled one and
+  # double-deliver. Queued, not cancelled: cancelling mid-run could stop the
+  # process after delivery but before state is saved.
+  group: shipwatch-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        # The watchers are pure functions with no network, so this is fast and
+        # catches a broken parse before it can write bad state.
+        run: python -m unittest discover -s tests
+
+      - name: Run watchers
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m shipwatch.main
+
+      - name: Commit state
+        # The heartbeat changes every run, so there is normally something to
+        # commit. That commit is what proves the runner is alive.
+        run: |
+          git config user.name  "shipwatch"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/
+          if git diff --cached --quiet; then
+            echo "no state change"
+          else
+            git commit -m "state: $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+          fi
