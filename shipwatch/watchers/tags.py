@@ -34,11 +34,11 @@ def fetch(repo: str, token: str) -> str:
 
 
 def parse(repo: str, text: str, prior: list[str] | None) -> tuple[list[Event], list[str]]:
-    """Pure. Returns (events, current tag names).
+    """Pure. Returns (events, known tag names).
 
-    `prior` of None means this repo has never been seen. In that case the
-    current tags are recorded WITHOUT emitting events — otherwise the first run
-    would file an issue for every historical release at once.
+    `prior` of None means this repo has never been seen: the current tags are
+    adopted WITHOUT emitting events, otherwise the first run would file an issue
+    for every historical release at once.
     """
     try:
         payload = json.loads(text)
@@ -61,10 +61,10 @@ def parse(repo: str, text: str, prior: list[str] | None) -> tuple[list[Event], l
         return [], current
 
     known = set(prior)
+    fresh = [t for t in current if t not in known]
+
     events = []
-    for tag in current:
-        if tag in known:
-            continue
+    for tag in fresh:
         extra = EXTRA_QUACKISO if repo.endswith("/quackiso") else ""
         events.append(Event(
             kind="new_tag",
@@ -73,4 +73,9 @@ def parse(repo: str, text: str, prior: list[str] | None) -> tuple[list[Event], l
             title=f"Ship the public side of {repo.split('/')[-1]} {tag}",
             body=CHECKLIST.format(repo=repo, tag=tag, extra=extra),
         ))
-    return events, current
+
+    # Monotone: the union, never just `current`. The API returns one page, so a
+    # repo with more than 100 tags drops the oldest. Storing only `current`
+    # would forget them, and a tag that reappeared in the window later would be
+    # announced again. The union means a tag is announced exactly once, ever.
+    return events, list(prior) + fresh

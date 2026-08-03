@@ -117,3 +117,16 @@ def env(name: str) -> str:
     if not value:
         raise RuntimeError(f"environment variable {name} is not set")
     return value
+
+
+def env_opt(name: str) -> str:
+    """Optional environment variable. Empty string when unset."""
+    return os.environ.get(name, "").strip()
+
+
+def ping(url: str, timeout: int = 10) -> None:
+    """Fire-and-forget GET, used for the external dead-man's switch."""
+    req = urllib.request.Request(url, method="GET")
+    req.add_header("user-agent", "shipwatch")
+    with urllib.request.urlopen(req, timeout=timeout):
+        pass
