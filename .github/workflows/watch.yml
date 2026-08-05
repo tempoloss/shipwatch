@@ -56,6 +56,12 @@ jobs:
         run: |
           git config user.name  "shipwatch"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # git cannot track an empty directory, so state/ is absent from a fresh
+          # checkout until a run has written something. `git add` on a missing
+          # path is a fatal error, which killed this step - under `bash -e` - on
+          # exactly the failing runs the always() above exists to rescue. On an
+          # existing but empty directory `git add` is a clean no-op.
+          mkdir -p state
           git add state/
           if git diff --cached --quiet; then
             echo "no state change"

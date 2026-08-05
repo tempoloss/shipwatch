@@ -97,14 +97,6 @@ def run_iso(cfg: dict, _read_token: str, failures: list[str],
 
 def main() -> int:
     cfg = load_config()
-    # Two GitHub tokens, for a reason that is easy to get wrong: GITHUB_TOKEN is
-    # scoped to the repository the workflow runs in, so it can READ public repos
-    # but CANNOT open an issue in tempoloss/quackiso from tempoloss/shipwatch.
-    # Cross-repo issue creation needs a fine-grained PAT with issues:write.
-    read_token = env("GITHUB_TOKEN")
-    write_token = env("GH_PAT")
-    tg_token = env("TELEGRAM_TOKEN")
-    chat_id = env("TELEGRAM_CHAT_ID")
 
     failures: list[str] = []
     outcomes: dict[str, str] = {}
@@ -112,7 +104,35 @@ def main() -> int:
     ran: list[str] = []
     delivered_total = 0
 
+    # Configuration is collected WITHOUT raising, which looks lax and is not.
+    # Reading it eagerly used to abort main() before the heartbeat below was
+    # written, and the heartbeat is both the liveness proof and the thing that
+    # resets GitHub's 60-day scheduled-workflow inactivity clock. Losing it on
+    # exactly the runs that are broken is how a schedule gets silently disabled
+    # - the precise failure this module exists to prevent. A missing secret is
+    # still loud: it lands in `failures`, skips every watcher, and exits 1.
+    def secret(name: str) -> str:
+        try:
+            return env(name)
+        except RuntimeError as exc:
+            failures.append(str(exc))
+            return ""
+
+    # Two GitHub tokens, for a reason that is easy to get wrong: GITHUB_TOKEN is
+    # scoped to the repository the workflow runs in, so it can READ public repos
+    # but CANNOT open an issue in tempoloss/quackiso from tempoloss/shipwatch.
+    # Cross-repo issue creation needs a fine-grained PAT with issues:write.
+    read_token = secret("GITHUB_TOKEN")
+    write_token = secret("GH_PAT")
+    tg_token = secret("TELEGRAM_TOKEN")
+    chat_id = secret("TELEGRAM_CHAT_ID")
+    configured = not failures
+
     for name, runner in (("tags", run_tags), ("iso", run_iso)):
+        # A watcher must not run half-configured: it would fetch, deliver
+        # nothing, and leave the event owed with no record of why.
+        if not configured:
+            break
         if not due(name, cfg["intervals_hours"][name]):
             continue
         ran.append(name)
@@ -167,8 +187,10 @@ def main() -> int:
 
     # A watcher failing is normal for the rate-limited source and must not turn
     # the run red, or the failure notification becomes noise and gets muted.
-    # Only an unexpected crash fails the job.
-    return 0
+    # Only an unexpected crash fails the job - and a missing secret, which is
+    # not a flaky source but a run that cannot ever have worked. It stays red
+    # every day until it is fixed, which is the point.
+    return 0 if configured else 1
 
 
 if __name__ == "__main__":
