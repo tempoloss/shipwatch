@@ -154,6 +154,8 @@ python -m unittest discover -s tests
 ## Раскладка
 
 ```
+.github/workflows/watch.yml продукт: расписание, вотчеры, коммит состояния
+.github/workflows/test.yml  тесты, на каждый пуш
 config.json                 репозитории, сообщения, интервалы
 shipwatch/core.py           типы, состояние, HTTP с необязательным повтором
 shipwatch/watchers/tags.py  репозиторий -> имена тегов

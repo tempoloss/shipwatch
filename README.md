@@ -155,6 +155,8 @@ the only thing separating a useful archive from a stale one.
 ## Layout
 
 ```
+.github/workflows/watch.yml the product: schedule, watchers, state commit
+.github/workflows/test.yml  the tests, on every push
 config.json                 watched repos, messages, intervals
 shipwatch/core.py           types, state, HTTP with optional retry
 shipwatch/watchers/tags.py  repo -> tag names

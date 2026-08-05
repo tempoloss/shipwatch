@@ -1,0 +1,34 @@
+# Run the tests on every push, separately from the watcher.
+#
+# `watch.yml` already runs them, but only on its schedule. That is the wrong
+# place to find out: the scheduled run is the thing that is supposed to be
+# reliable, and a break pushed on Tuesday would surface inside Wednesday's
+# monitoring run rather than beside the commit that caused it. A failing watcher
+# also looks exactly like a failing source, which is the ambiguity this project
+# spends most of its design removing.
+#
+# One Python version, matching the one `watch.yml` pins. Testing versions that
+# never run the code buys a matrix and no information.
+#
+# No lint step: there is no linter configured and no dependency file to install.
+# The whole thing is the standard library.
+
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: tests
+        run: python -m unittest discover -s tests -v
