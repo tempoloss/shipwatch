@@ -79,12 +79,28 @@ the liveness proof and what keeps the schedule from being auto-disabled.
 
 ## Configuration
 
-`config.json`:
+The committed `config.json` is one person's live deployment rather than a
+template, which is deliberate: a working config shows what the fields are for
+better than an empty one. Everything that names a repository lives in it, so a
+fork changes this file and nothing else.
 
 - `repos` — watched for new tags
-- `iso_families` — the ISO 20022 messages quackiso implements
-- `iso_issue_repo` — where ISO issues are filed
+- `repo_extras` — extra checklist lines for one repository, e.g. a registry
+  chore that only applies to one project. Optional; absent means the common list
+- `iso_families` — the ISO 20022 messages the consuming project implements
+- `iso_issue_repo` — where ISO issues are filed. Its name is also what the issue
+  body says was built against the old version
 - `intervals_hours` — `tags` 20h, `iso` 168h
+
+The ISO watcher is deliberately about ISO 20022 and not about "version numbers on
+a page". Adding a different source means adding a watcher, which is two
+functions:
+
+```python
+fetch(cfg) -> str                      # impure, may raise
+parse(text, prior) -> (events, state)  # pure; raises ParseError when the
+                                       # response does not look like the page
+```
 
 One daily schedule drives everything; each watcher decides whether it is due, so
 cadence lives in one reviewable file rather than several cron lines.
@@ -144,7 +160,7 @@ what was *seen*, so it cannot silence anything, and it is committed with
 python -m unittest discover -s tests
 ```
 
-38 tests, no network. The watchers split into `fetch` (impure) and `parse`
+40 tests, no network. The watchers split into `fetch` (impure) and `parse`
 (pure), so every parse path is testable. Most tests defend the rule above rather
 than the happy path. The runner ones exist because a missing secret once aborted
 `main` before the heartbeat was written, and the `always()` commit step then died

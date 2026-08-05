@@ -58,13 +58,31 @@ class TagsWatcher(unittest.TestCase):
         events, _ = tags.parse("r/x", tag_body(["v2.0.0", "v1.0.0"]), state)
         self.assertEqual(events, [])
 
-    def test_quackiso_gets_the_registry_bump_item(self):
-        events, _ = tags.parse("t/quackiso", tag_body(["v1.3.0"]), ["v1.2.0"])
-        self.assertIn("community-extensions", events[0].body)
+    def test_configured_extras_become_checklist_items(self):
+        events, _ = tags.parse("t/quackiso", tag_body(["v1.3.0"]), ["v1.2.0"],
+                               ["bump `version` in the `community-extensions` fork"])
+        self.assertIn("- [ ] bump `version` in the `community-extensions` fork",
+                      events[0].body)
 
-    def test_other_repos_do_not_get_it(self):
+    def test_a_repo_without_extras_gets_only_the_common_list(self):
         events, _ = tags.parse("t/moxy", tag_body(["v0.2.0"]), ["v0.1.0"])
         self.assertNotIn("community-extensions", events[0].body)
+        self.assertIn("- [ ] blog post", events[0].body)
+
+    def test_extras_are_per_repo_not_per_name(self):
+        # The old code tested `repo.endswith("/quackiso")`, so a fork could not
+        # move the item without editing the watcher. Nothing about the repo name
+        # decides this now.
+        events, _ = tags.parse("anyone/anything", tag_body(["v1.0.0"]), [],
+                               ["ping the registry"])
+        self.assertIn("- [ ] ping the registry", events[0].body)
+        bare, _ = tags.parse("t/quackiso", tag_body(["v1.3.0"]), ["v1.2.0"])
+        self.assertNotIn("community-extensions", bare[0].body)
+
+    def test_several_extras_keep_their_order(self):
+        events, _ = tags.parse("r/x", tag_body(["v1.0.0"]), [], ["first", "second"])
+        body = events[0].body
+        self.assertLess(body.index("- [ ] first"), body.index("- [ ] second"))
 
     def test_rate_limit_body_raises_instead_of_adopting_empty(self):
         with self.assertRaises(ParseError):

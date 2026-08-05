@@ -21,7 +21,11 @@ The public side is not done yet:
 _Filed by shipwatch. Close this when the list is done._
 """
 
-EXTRA_QUACKISO = "- [ ] bump `version` and `ref` in the `community-extensions` fork, open the PR\n"
+# Per-repo checklist additions come from config, not from a name test in code.
+# This used to be `if repo.endswith("/quackiso")`, which made one deployment's
+# registry chore a property of the watcher: anyone forking this had to edit the
+# source to change a checklist line, and the special case was invisible from
+# config.json where every other target lives.
 
 
 def fetch(repo: str, token: str) -> str:
@@ -33,12 +37,16 @@ def fetch(repo: str, token: str) -> str:
     )
 
 
-def parse(repo: str, text: str, prior: list[str] | None) -> tuple[list[Event], list[str]]:
+def parse(repo: str, text: str, prior: list[str] | None,
+          extras: list[str] | None = None) -> tuple[list[Event], list[str]]:
     """Pure. Returns (events, known tag names).
 
     `prior` of None means this repo has never been seen: the current tags are
     adopted WITHOUT emitting events, otherwise the first run would file an issue
     for every historical release at once.
+
+    `extras` are checklist lines for this repo only, from `repo_extras` in
+    config. Defaulted so existing callers and tests keep working.
     """
     try:
         payload = json.loads(text)
@@ -63,9 +71,10 @@ def parse(repo: str, text: str, prior: list[str] | None) -> tuple[list[Event], l
     known = set(prior)
     fresh = [t for t in current if t not in known]
 
+    extra = "".join(f"- [ ] {line}\n" for line in (extras or []))
+
     events = []
     for tag in fresh:
-        extra = EXTRA_QUACKISO if repo.endswith("/quackiso") else ""
         events.append(Event(
             kind="new_tag",
             repo=repo,

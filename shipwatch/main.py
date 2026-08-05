@@ -66,7 +66,9 @@ def run_tags(cfg: dict, read_token: str, failures: list[str],
     for repo in cfg["repos"]:
         try:
             text = tags_watcher.fetch(repo, read_token)
-            repo_events, known = tags_watcher.parse(repo, text, prior.get(repo))
+            repo_events, known = tags_watcher.parse(
+                repo, text, prior.get(repo),
+                (cfg.get("repo_extras") or {}).get(repo))
         except (ParseError, ConnectionError, OSError) as exc:
             failures.append(f"tags {repo}: {exc}")
             outcomes[repo] = "failed"

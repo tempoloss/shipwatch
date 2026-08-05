@@ -7,11 +7,27 @@
     "tempoloss/db-seed",
     "tempoloss/mentor-skill"
   ],
+  "repo_extras": {
+    "tempoloss/quackiso": [
+      "bump `version` and `ref` in the `community-extensions` fork, open the PR"
+    ]
+  },
   "iso_families": [
-    "camt.052", "camt.053", "camt.054",
-    "pacs.002", "pacs.003", "pacs.004", "pacs.007", "pacs.008", "pacs.009",
-    "pain.001", "pain.002", "pain.008",
-    "camt.029", "camt.055", "camt.056"
+    "camt.052",
+    "camt.053",
+    "camt.054",
+    "pacs.002",
+    "pacs.003",
+    "pacs.004",
+    "pacs.007",
+    "pacs.008",
+    "pacs.009",
+    "pain.001",
+    "pain.002",
+    "pain.008",
+    "camt.029",
+    "camt.055",
+    "camt.056"
   ],
   "iso_issue_repo": "tempoloss/quackiso",
   "intervals_hours": {

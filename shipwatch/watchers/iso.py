@@ -179,7 +179,7 @@ def parse(html: str, prior: dict, families: list[str],
             title=f"ISO 20022: {family} moved to version {version:02d}",
             body=(
                 f"`{family}` is now published at version **{version:02d}** "
-                f"(quackiso was built against {was:02d}).\n\n"
+                f"({issue_repo.split('/')[-1]} was built against {was:02d}).\n\n"
                 f"- [ ] read the change description for {family}\n"
                 f"- [ ] decide whether the new version needs parser changes\n"
                 f"- [ ] add a real message of the new version to the test corpus\n\n"
