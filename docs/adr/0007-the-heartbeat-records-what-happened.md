@@ -2,7 +2,7 @@
 
 Status: accepted
 
-Decided in `05bd807` (2026-08-03), corrected in `11b51a7` (2026-08-05).
+Decided in `01cfd1c` (2026-08-03), corrected in `5d3d5d4` (2026-08-05).
 Written down as an ADR on 2026-08-05, when the decisions that until then lived
 only in the design doc and commit messages were filed here.
 

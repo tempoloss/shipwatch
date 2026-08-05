@@ -2,7 +2,7 @@
 
 Status: accepted
 
-Decided in `05bd807` (2026-08-03), hardened in `e88edc1` (2026-08-03). Written down as an ADR on 2026-08-05, when the decisions that until then lived only in the design doc and commit messages were filed here.
+Decided in `01cfd1c` (2026-08-03), hardened in `2a00bdb` (2026-08-03). Written down as an ADR on 2026-08-05, when the decisions that until then lived only in the design doc and commit messages were filed here.
 
 ## Context
 
@@ -22,7 +22,7 @@ event is never re-emitted. The state file asserts it succeeded.
 This is the same failure class as a `NULL` silently dropping out of a `SUM`:
 wrong, quiet, and trusted.
 
-The first draft in `05bd807` guarded the input side. Review in `e88edc1` added
+The first draft in `01cfd1c` guarded the input side. Review in `2a00bdb` added
 the output half, because a dropped checklist is the tool silently failing at
 its one job.
 

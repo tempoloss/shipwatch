@@ -2,7 +2,7 @@
 
 Status: accepted
 
-Decided in `1143e20` (2026-08-05). Written down as an ADR on 2026-08-05, when the
+Decided in `7f25550` (2026-08-05). Written down as an ADR on 2026-08-05, when the
 decisions that until then lived only in the design doc and commit messages were
 filed here.
 
