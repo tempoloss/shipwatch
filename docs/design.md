@@ -1,8 +1,14 @@
 # shipwatch — design
 
 **Date:** 2026-08-03
-**Status:** implemented; revised after independent review
+**Status:** implemented; revised after independent review; one decision superseded
 **Owner:** tempoloss
+
+This is the whole design in one document, written before implementation. The
+decisions were later filed individually under [`adr/`](adr/), which is where a
+reversal is recorded: this document is kept as written, with supersessions marked
+in place rather than edited away, because the reasoning that turned out wrong is
+the useful part.
 
 ## Problem
 
@@ -192,6 +198,15 @@ Consequences folded into the design:
   that never happened — reintroducing the exact ambiguity the digest exists to
   remove. The tags watcher keeps 3 retries, where transient 5xx are real and the
   endpoint does not throttle at this volume.
+
+  > **Superseded on 2026-08-05 by [ADR 0008](adr/0008-an-archived-snapshot-beats-silence.md).**
+  > The no-retry half stands. The no-cache half does not: the live page turned out
+  > to be unreachable on every run, not occasionally, so "no fallback" meant the
+  > ISO watcher never reported at all. The paragraph above is right about a
+  > self-cache, which finds no change by construction, and wrong to generalise
+  > that to a third-party snapshot, which can hold a version we have not seen. The
+  > ambiguity it worried about is closed separately, by labelling the source in
+  > the digest.
 - Multi-week ISO outages must not raise alarms; only a stalled runner should.
 
 ## Security
