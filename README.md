@@ -123,9 +123,12 @@ what was *seen*, so it cannot silence anything, and it is committed with
 python -m unittest discover -s tests
 ```
 
-21 tests, no network. The watchers split into `fetch` (impure) and `parse`
+27 tests, no network. The watchers split into `fetch` (impure) and `parse`
 (pure), so every parse path is testable. Most tests defend the rule above rather
-than the happy path.
+than the happy path — including the runner ones, which exist because a missing
+secret once aborted `main` before the heartbeat was written, and the `always()`
+commit step then died on an absent `state/`. The mechanism written to survive a
+crash was removed by the crash.
 
 ## Layout
 
@@ -137,6 +140,8 @@ shipwatch/watchers/iso.py   -> latest version per message
 shipwatch/sinks/issue.py    event -> GitHub issue, deduplicated by marker
 shipwatch/sinks/telegram.py event -> message
 shipwatch/main.py           runner
+tests/test_watchers.py      parse paths, per watcher
+tests/test_runner.py        the heartbeat survives a misconfigured run
 state/*.json                last-seen, committed; the git diff is the audit trail
 docs/superpowers/specs/     the design, and why each rule exists
 ```
