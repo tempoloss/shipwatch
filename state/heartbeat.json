@@ -1,0 +1,23 @@
+{
+  "delivered": 0,
+  "failures": [
+    "iso: GET https://www.iso20022.org/iso-20022-message-definitions failed after 1 attempts: The read operation timed out"
+  ],
+  "last_run": "2026-08-05T06:45:01.874656+00:00",
+  "last_success": {
+    "tags": "2026-08-05T06:44:31.699359+00:00"
+  },
+  "outcomes": {
+    "iso20022.org": "failed",
+    "tempoloss/chessview": "ok",
+    "tempoloss/db-seed": "ok",
+    "tempoloss/mentor-skill": "ok",
+    "tempoloss/moxy": "ok",
+    "tempoloss/quackiso": "ok",
+    "tempoloss/search-gateway": "ok"
+  },
+  "ran": [
+    "tags",
+    "iso"
+  ]
+}

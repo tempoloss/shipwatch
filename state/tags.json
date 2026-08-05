@@ -1,0 +1,24 @@
+{
+  "tempoloss/chessview": [
+    "v1.0.1"
+  ],
+  "tempoloss/db-seed": [
+    "v0.1.0"
+  ],
+  "tempoloss/mentor-skill": [],
+  "tempoloss/moxy": [
+    "v0.1.0-alpha.1"
+  ],
+  "tempoloss/quackiso": [
+    "v1.3.0",
+    "v1.2.0",
+    "v1.1.0",
+    "v1.0.0",
+    "v0.2.0",
+    "v0.0.2",
+    "v0.0.1"
+  ],
+  "tempoloss/search-gateway": [
+    "v0.1.0"
+  ]
+}
