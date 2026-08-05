@@ -82,7 +82,7 @@ def run_iso(cfg: dict, _read_token: str, failures: list[str],
             outcomes: dict) -> tuple[list[Event], dict | None]:
     prior = load_state("iso")
     try:
-        html = iso_watcher.fetch()
+        html, source = iso_watcher.fetch()
         events, state = iso_watcher.parse(
             html, prior, cfg["iso_families"], cfg["iso_issue_repo"])
     except (ParseError, ConnectionError, OSError) as exc:
@@ -91,7 +91,7 @@ def run_iso(cfg: dict, _read_token: str, failures: list[str],
         outcomes["iso20022.org"] = "failed"
         return [], None
     tracked = sum(1 for f in cfg["iso_families"] if f in state)
-    outcomes["iso20022.org"] = f"ok ({tracked}/{len(cfg['iso_families'])} messages found)"
+    outcomes["iso20022.org"] = f"ok, {source} ({tracked}/{len(cfg['iso_families'])} messages found)"
     return events, state
 
 
