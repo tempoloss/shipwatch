@@ -1,12 +1,15 @@
 {
   "delivered": 0,
-  "failures": [],
-  "last_run": "2026-09-03T11:17:20.318368+00:00",
+  "failures": [
+    "iso: implausible page: 0 identifiers across 0 business areas, expected at least 100 across 3. Treating as a failed fetch rather than as 'the versions vanished'."
+  ],
+  "last_run": "2026-09-04T11:20:48.323709+00:00",
   "last_success": {
     "iso": "2026-08-27T17:39:35.500292+00:00",
-    "tags": "2026-09-03T11:17:20.318258+00:00"
+    "tags": "2026-09-04T11:20:16.249753+00:00"
   },
   "outcomes": {
+    "iso20022.org": "failed",
     "tempoloss/chessview": "ok",
     "tempoloss/db-seed": "ok",
     "tempoloss/mentor-skill": "ok",
@@ -15,6 +18,7 @@
     "tempoloss/search-gateway": "ok"
   },
   "ran": [
-    "tags"
+    "tags",
+    "iso"
   ]
 }
